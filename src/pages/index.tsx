@@ -10,6 +10,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect } from 'react'
 import styles from '../styles/Home.module.css'
+import { type } from 'os'
 
 const server = 'https://api.github.com'
 const api_path = 'users'
@@ -49,23 +50,67 @@ type GithubUser = {
   updated_at: string
 }
 
-type Data = {
-  name: string
-  image_profile: string
+type Error = {
+  message: string
+  documentation_url: string
 }
 
 const Home: NextPage = () => {
   // States
-  let username_input: string = 'darkvictor13'
-  const [data, setData] = useState<Data>({ name: 'Nome inicial', image_profile: '' })
+  let username_input: string = '';
+  const [is_data_valid, setIsDataValid] = useState<boolean>(false)
+  const [data, setData] = useState<GithubUser>({
+    login: '',
+    id: 0,
+    node_id: '',
+    avatar_url: '',
+    gravatar_id: '',
+    url: '',
+    html_url: '',
+    followers_url: '',
+    following_url: '',
+    gists_url: '',
+    starred_url: '',
+    subscriptions_url: '',
+    organizations_url: '',
+    repos_url: '',
+    events_url: '',
+    received_events_url: '',
+    type: '',
+    site_admin: false,
+    name: '',
+    company: '',
+    blog: '',
+    location: '',
+    email: '',
+    hireable: false,
+    bio: '',
+    twitter_username: '',
+    public_repos: 0,
+    public_gists: 0,
+    followers: 0,
+    following: 0,
+    created_at: '',
+    updated_at: ''
+  })
 
   const onClickButton = async () => {
-    username_input = (document.getElementById('username_input') as HTMLInputElement).value
-    console.log('onClickButton with username_input: ', username_input)
+    username_input = (
+      document.getElementById('username_input') as HTMLInputElement
+    ).value
+    if (username_input == '') {
+      setIsDataValid(false)
+      return
+    }
+
     fetch(`${server}/${api_path}/${username_input}`)
       .then((res: Response) => res.json())
-      .then((_data: GithubUser) => {
-        setData({ name: _data.name, image_profile: _data.avatar_url })
+      .then((_data: GithubUser) =>{
+        setIsDataValid(true)
+        setData(_data)
+      })
+      .catch((error: Error) => {
+        setIsDataValid(false)
       });
   }
   return (
@@ -80,22 +125,35 @@ const Home: NextPage = () => {
           <div>
             <input
               type='text'
-              id = 'username_input'
-            >
-            </input>
+              id='username_input'
+              placeholder='Nome do usuário'
+            />
             <button onClick={onClickButton}>
-              Search
+              Search 🔎
             </button>
           </div>
-          <div>
-            <a
-            className={styles.card}
-            href='https://github.com/${data.name}'
-            >
-              <h2>User</h2>
-              <p>Name: {data.name}</p>
-              <p>Image: {data.image_profile}</p>
-            </a>
+
+          <div className={styles.grid}>
+            {is_data_valid?
+              <a
+              id='github_profile_card'
+              className={styles.card}
+              href={data.html_url}
+              target='_blank'
+              >
+                <h2>User: {data.login}</h2>
+                <img src={data.avatar_url} width={300} />
+                <p><b>About:</b> {data.bio}</p>
+                <p><b>Name</b>: {data.name}</p>
+                <p><b>Company:</b> {data.company}</p>
+                <p><b>Email:</b> {data.email}</p>
+                <p><b>Followers:</b> {data.followers}</p>
+                <p><b>Following:</b> {data.following}</p>
+                <p><b>Public Repos:</b> {data.public_repos}</p>
+              </a>
+            : 
+              <div></div>
+            }
           </div>
         </main>
 

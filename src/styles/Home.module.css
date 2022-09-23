@@ -37,6 +37,7 @@
 .title a:focus,
 .title a:active {
   text-decoration: underline;
+  justify-content: center;
 }
 
 .title {
@@ -67,10 +68,11 @@
 
 .grid {
   display: flex;
+  text-align: center;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  max-width: 800px;
+  max-width: 400px;
 }
 
 .card {
@@ -82,7 +84,7 @@
   border: 1px solid #eaeaea;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
-  max-width: 300px;
+  max-width: 350px;
 }
 
 .card:hover,

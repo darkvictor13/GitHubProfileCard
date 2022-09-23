@@ -104,15 +104,26 @@ const Home: NextPage = () => {
     }
 
     fetch(`${server}/${api_path}/${username_input}`)
-      .then((res: Response) => res.json())
-      .then((_data: GithubUser) =>{
+      .then((res: Response) =>{
+        if (!res.ok) {
+          throw Error(res.statusText)
+        }
+        return res.json()
+      }).then((_data: GithubUser) => {
         setIsDataValid(true)
         setData(_data)
-      })
-      .catch((error: Error) => {
+      }).catch((error: Error) => {
         setIsDataValid(false)
       });
   }
+  /*
+    TODO:
+      - Transformar em componente o card
+      - Mostrar apenas campos que não são nulos ou vazios
+      - Mostrar mensagem de erro caso o usuário não exista
+      - Quando usuário for inválido, mostrar mensagem de erro
+      - Animação de carregamento
+  */
   return (
       <div className={styles.container}>
         <Head>
@@ -127,6 +138,11 @@ const Home: NextPage = () => {
               type='text'
               id='username_input'
               placeholder='Nome do usuário'
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  onClickButton()
+                }
+              }}
             />
             <button onClick={onClickButton}>
               Search 🔎
@@ -150,51 +166,11 @@ const Home: NextPage = () => {
                 <p><b>Followers:</b> {data.followers}</p>
                 <p><b>Following:</b> {data.following}</p>
                 <p><b>Public Repos:</b> {data.public_repos}</p>
+                <p><b>Location: {data.location}</b></p>
               </a>
             : 
               <div></div>
             }
-          </div>
-        </main>
-
-        <main className={styles.main}>
-          <h1 className={styles.title}>
-            Welcome to <a href="https://nextjs.org">Next.js!</a>
-          </h1>
-
-          <p className={styles.description}>
-            Get started by editing{' '}
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-
-          <div className={styles.grid}>
-            <a href="https://nextjs.org/docs" className={styles.card}>
-              <h2>Documentation &rarr;</h2>
-              <p>Find in-depth information about Next.js features and API.</p>
-            </a>
-
-            <a href="https://nextjs.org/learn" className={styles.card}>
-              <h2>Learn &rarr;</h2>
-              <p>Learn about Next.js in an interactive course with quizzes!</p>
-            </a>
-
-            <a
-              href="https://github.com/vercel/next.js/tree/canary/examples"
-              className={styles.card}
-            >
-              <h2>Examples &rarr;</h2>
-              <p>Discover and deploy boilerplate example Next.js projects.</p>
-            </a>
-
-            <a
-              href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              className={styles.card}
-            >
-              <h2>Deploy &rarr;</h2>
-              <p>
-                Instantly deploy your Next.js site to a public URL with Vercel.
-              </p>
-            </a>
           </div>
         </main>
 

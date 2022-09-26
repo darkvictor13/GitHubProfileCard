@@ -19,21 +19,19 @@ const Home: NextPage = () => {
   // States
   const [user_not_found, setUserNotFound] = useState<boolean>(false);
   const [is_data_valid, setIsDataValid] = useState<boolean>(false);
-  const [data, setData] = useState<GithubUser>({
-    is_valid: false,
-  });
+  const [data, setData] = useState<GithubUser>({is_valid: false});
 
   const onClickButton = async () => {
     const username_input: string = (
       document.getElementById("username_input") as HTMLInputElement
     ).value;
-    if (username_input == "") {
+    if (username_input === "") {
       setUserNotFound(false);
       setIsDataValid(false);
       return;
     }
 
-    fetch(`/api/user/${username_input}`)
+    await fetch(`/api/user/${username_input}`)
       .then((res: Response) => {
         if (!res.ok) {
           throw Error(res.statusText);

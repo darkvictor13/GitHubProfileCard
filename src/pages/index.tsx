@@ -15,56 +15,16 @@ import { GithubUser } from "../model/GithubUser";
 import UserCard from "../components/UserCard";
 import UserNotFound from "../components/UserNotFound";
 
-const server = "https://api.github.com";
-const api_path = "users";
-
-type Error = {
-  message: string;
-  documentation_url: string;
-};
-
 const Home: NextPage = () => {
   // States
-  let username_input: string = "";
   const [user_not_found, setUserNotFound] = useState<boolean>(false);
   const [is_data_valid, setIsDataValid] = useState<boolean>(false);
   const [data, setData] = useState<GithubUser>({
-    login: "",
-    id: 0,
-    node_id: "",
-    avatar_url: "",
-    gravatar_id: "",
-    url: "",
-    html_url: "",
-    followers_url: "",
-    following_url: "",
-    gists_url: "",
-    starred_url: "",
-    subscriptions_url: "",
-    organizations_url: "",
-    repos_url: "",
-    events_url: "",
-    received_events_url: "",
-    type: "",
-    site_admin: false,
-    name: "",
-    company: "",
-    blog: "",
-    location: "",
-    email: "",
-    hireable: false,
-    bio: "",
-    twitter_username: "",
-    public_repos: 0,
-    public_gists: 0,
-    followers: 0,
-    following: 0,
-    created_at: "",
-    updated_at: "",
+    is_valid: false,
   });
 
   const onClickButton = async () => {
-    username_input = (
+    const username_input: string = (
       document.getElementById("username_input") as HTMLInputElement
     ).value;
     if (username_input == "") {
@@ -73,7 +33,7 @@ const Home: NextPage = () => {
       return;
     }
 
-    fetch(`${server}/${api_path}/${username_input}`)
+    fetch(`/api/user/${username_input}`)
       .then((res: Response) => {
         if (!res.ok) {
           throw Error(res.statusText);
@@ -81,9 +41,14 @@ const Home: NextPage = () => {
         return res.json();
       })
       .then((_data: GithubUser) => {
-        setUserNotFound(false);
-        setIsDataValid(true);
-        setData(_data);
+        if (_data.is_valid) {
+          setUserNotFound(false);
+          setIsDataValid(true);
+          setData(_data);
+        }else {
+          setUserNotFound(true);
+          setIsDataValid(false);
+        }
       })
       .catch((error: Error) => {
         setUserNotFound(true);

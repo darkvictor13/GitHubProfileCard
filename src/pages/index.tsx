@@ -11,20 +11,33 @@ import Image from "next/image";
 import { useEffect } from "react";
 import styles from "../styles/Home.module.css";
 import { type } from "os";
-import { GithubUser } from "../model/GithubUser";
+import { emptyGithubUser, GithubUser } from "../model/GithubUser";
 import UserCard from "../components/UserCard";
 import UserNotFound from "../components/UserNotFound";
+import { GithubError } from "../model/GithubError";
+import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
   // States
   const [user_not_found, setUserNotFound] = useState<boolean>(false);
   const [is_data_valid, setIsDataValid] = useState<boolean>(false);
-  const [data, setData] = useState<GithubUser>({is_valid: false});
+  const [data, setData] = useState<GithubUser>(emptyGithubUser());
 
-  const onClickButton = async () => {
-    const username_input: string = (
-      document.getElementById("username_input") as HTMLInputElement
-    ).value;
+  const router = useRouter();
+  // every time the url changes, the useEffect will be called
+  useEffect(() => {
+    const username = router.query.username;
+    if (username != undefined) {
+      doSearch(true);
+    }
+  }, [router]);
+
+  const doSearch = async (use_url: boolean = false) => {
+    const input_value = (document.getElementById("username_input") as HTMLInputElement).value;
+    let username_input: string = use_url
+      ? (router.query.username as string) || ""
+      : input_value;
+
     if (username_input === "") {
       setUserNotFound(false);
       setIsDataValid(false);
@@ -32,20 +45,16 @@ const Home: NextPage = () => {
     }
 
     await fetch(`/api/user/${username_input}`)
-      .then((res: Response) => {
-        if (!res.ok) {
-          throw Error(res.statusText);
-        }
-        return res.json();
-      })
-      .then((_data: GithubUser) => {
-        if (_data.is_valid) {
-          setUserNotFound(false);
-          setIsDataValid(true);
-          setData(_data);
-        }else {
+      .then((response: Response) => response.json())
+      .then((data: GithubUser | GithubError) => {
+        // if data is a GithubError
+        if (data.hasOwnProperty("message")) {
           setUserNotFound(true);
           setIsDataValid(false);
+        } else {
+          setUserNotFound(false);
+          setIsDataValid(true);
+          setData(data as GithubUser);
         }
       })
       .catch((error: Error) => {
@@ -69,11 +78,14 @@ const Home: NextPage = () => {
             placeholder="User name"
             onKeyPress={(e) => {
               if (e.key === "Enter") {
-                onClickButton();
+                doSearch();
               }
             }}
           />
-          <button onClick={onClickButton}>Search 🔎</button>
+          <button onClick={((e) => {
+            doSearch();
+          })}>
+          Search 🔎</button>
         </div>
 
         <div className={styles.grid}>

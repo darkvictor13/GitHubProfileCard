@@ -10,3 +10,4 @@ Project requirements specifications can be found at /docs/requiriments.pdf
 - [ ] Make a better transition between user searches;
 - [X] Making authenticated server side requests to GitHub;
 - [X] Create an api to fetch data from GitHub;
+- [X] Redirect /[username] to /?username=[username];

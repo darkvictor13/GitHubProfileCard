@@ -12,7 +12,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<GithubUser>
 ) {
-  console.log(process.env.GITHUB_API_KEY);
   const { user } = req.query;
   await fetch(`${server}/${api_path}/${user}`, { headers: headers() })
     .then((response) => {
